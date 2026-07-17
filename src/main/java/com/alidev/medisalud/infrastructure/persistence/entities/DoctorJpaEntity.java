@@ -24,7 +24,7 @@ public class DoctorJpaEntity {
     @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "created_at", nullable = false)

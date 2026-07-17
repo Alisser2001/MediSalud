@@ -1,6 +1,5 @@
 package com.alidev.medisalud.application.use_cases;
 
-import com.alidev.medisalud.application.dtos.request.CancelReservationRequest;
 import com.alidev.medisalud.application.dtos.response.CancelReservationResponse;
 import com.alidev.medisalud.application.mappers.ReservationDtoMapper;
 import com.alidev.medisalud.domain.entities.Penalty;
@@ -12,6 +11,7 @@ import com.alidev.medisalud.domain.value_objects.PenaltyReason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +20,8 @@ public class CancelReservationUseCase implements CancelReservationPort {
     private final PenaltyRepositoryPort penaltyRepository;
 
     @Override
-    public CancelReservationResponse execute(CancelReservationRequest request) {
-        Reservation reservation = reservationRepository.findById(request.reservationId()).orElseThrow();
+    public CancelReservationResponse execute(UUID reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow();
         boolean penaltyApplied = false;
         if (reservation.getScheduledAt().isBefore(LocalDateTime.now().plusHours(24))) {
             penaltyApplied = true;

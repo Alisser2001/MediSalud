@@ -24,6 +24,7 @@ public class PenaltyJpaEntity {
     @JoinColumn(name = "reservation_id", nullable = false)
     private ReservationJpaEntity reservation;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PenaltyReason reason;
 
