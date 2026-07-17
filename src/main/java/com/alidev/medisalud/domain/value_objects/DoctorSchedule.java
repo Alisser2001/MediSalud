@@ -1,6 +1,7 @@
 package com.alidev.medisalud.domain.value_objects;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
 
@@ -55,4 +56,17 @@ public record DoctorSchedule(
             LocalTime startTime,
             LocalTime endTime
     ) {}
+
+    public boolean isValidSlot(LocalDateTime dateTime) {
+        ScheduleRange range = schedules.get(dateTime.getDayOfWeek());
+        if (range == null) {
+            return false;
+        }
+        LocalTime time = dateTime.toLocalTime();
+        if (time.isBefore(range.startTime())
+                || !time.isBefore(range.endTime())) {
+            return false;
+        }
+        return time.getMinute() % appointmentDurationMinutes == 0;
+    }
 }
