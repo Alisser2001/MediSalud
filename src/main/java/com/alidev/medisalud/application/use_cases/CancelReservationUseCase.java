@@ -30,13 +30,13 @@ public class CancelReservationUseCase implements CancelReservationPort {
                                         )
                                 );
         boolean penaltyApplied = false;
-        if (reservation.getScheduledAt().isBefore(LocalDateTime.now().plusHours(24))) {
+        if (reservation.getScheduledAt().isBefore(LocalDateTime.now().plusHours(2))) {
             penaltyApplied = true;
             Penalty penalty = Penalty.builder()
                                 .patient(reservation.getPatient())
                                 .reservation(reservation)
                                 .reason(PenaltyReason.LATE_CANCELLATION)
-                                .expiresAt(LocalDateTime.now().plusMonths(6))
+                                .expiresAt(LocalDateTime.now().plusDays(30))
                                 .build()
                                 .initialize();
             penaltyRepository.save(penalty);

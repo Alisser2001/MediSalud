@@ -5,9 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class MedisaludApplicationTests {
-
 	@Test
-	void contextLoads() {
-	}
-
+	void contextLoads() {}
 }

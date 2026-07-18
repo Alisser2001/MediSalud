@@ -15,7 +15,7 @@ import com.alidev.medisalud.domain.ports.infrastructure.persistence.ReservationR
 import com.alidev.medisalud.domain.value_objects.DoctorSchedule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -42,6 +42,11 @@ public class ScheduleReservationUseCase implements ScheduleReservationPort {
                                         "Patient not found."
                                 )
                         );
+        if (patient.getBirthDate() != null && patient.getBirthDate().isAfter(LocalDate.now())) {
+            throw new InvalidPatientBirthDateException(
+                    "Birth date cannot be in the future."
+            );
+        }
         DoctorSchedule schedule = DoctorSchedule.defaultSchedule();
         if (!schedule.isValidSlot(request.scheduledAt())) {
             throw new InvalidReservationScheduleException(
