@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: medisalud
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/medisalud
+    username: postgres
+    password: alidev
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
