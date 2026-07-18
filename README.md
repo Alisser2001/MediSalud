@@ -138,6 +138,125 @@ PostgreSQL
 
 ---
 
+## Manejo de Errores
+
+La aplicación implementa una estrategia centralizada de manejo de errores basada en excepciones de dominio, excepciones de infraestructura y un manejador global de excepciones.
+
+### Objetivos
+
+- Mantener desacoplada la lógica de negocio de HTTP.
+- Evitar bloques try/catch distribuidos por toda la aplicación.
+- Retornar respuestas consistentes al consumidor de la API.
+- Proporcionar mensajes de error claros y accionables.
+
+---
+
+### Excepciones de Dominio
+
+Representan violaciones de reglas de negocio definidas por el sistema.
+
+Estas excepciones son lanzadas desde las entidades o casos de uso cuando una operación no puede completarse debido a una restricción funcional.
+
+Ejemplos:
+
+- ResourceNotFoundException
+- DuplicatePatientDocumentException
+- InvalidReservationScheduleException
+- PatientBlockedException
+- ReservationAlreadyCancelledException
+
+Ejemplo:
+
+```text
+Paciente con 3 penalizaciones activas
+        ↓
+ScheduleReservationUseCase
+        ↓
+PatientBlockedException
+```
+
+---
+
+### Excepciones de Infraestructura
+
+Representan errores técnicos relacionados con dependencias externas.
+
+Estas excepciones son lanzadas por los adapters de infraestructura cuando ocurre un problema durante la comunicación con componentes externos.
+
+Ejemplos:
+
+- RepositoryException
+- DatabaseConnectionException
+- ExternalServiceException
+- AuthenticationException
+
+Ejemplo:
+
+```text
+PostgreSQL no disponible
+        ↓
+PatientRepositoryAdapter
+        ↓
+DatabaseConnectionException
+```
+
+De esta forma la capa de aplicación no necesita conocer detalles técnicos de persistencia.
+
+---
+
+### GlobalExceptionHandler
+
+Todas las excepciones son interceptadas por un único componente global basado en @RestControllerAdvice.
+
+Su responsabilidad es traducir excepciones internas a respuestas HTTP consistentes.
+
+Ejemplo:
+
+```text
+DuplicatePatientDocumentException
+        ↓
+GlobalExceptionHandler
+        ↓
+HTTP 409 CONFLICT
+```
+
+---
+
+### Mapeo de Errores HTTP
+
+| Excepción | HTTP |
+|------------|------|
+| MethodArgumentNotValidException | 400 Bad Request |
+| ResourceNotFoundException | 404 Not Found |
+| DuplicatePatientDocumentException | 409 Conflict |
+| InvalidReservationScheduleException | 409 Conflict |
+| PatientBlockedException | 409 Conflict |
+| ReservationAlreadyCancelledException | 409 Conflict |
+| RepositoryException | 500 Internal Server Error |
+| DatabaseConnectionException | 500 Internal Server Error |
+| Exception | 500 Internal Server Error |
+
+---
+
+### Formato de Respuesta de Error
+
+Todas las respuestas de error utilizan una estructura uniforme.
+
+Ejemplo:
+
+```json
+{
+  "timestamp": "2026-07-18T15:30:00",
+  "status": 409,
+  "error": "Conflict",
+  "message": "Patient has 3 active penalties."
+}
+```
+
+Esto permite que clientes y sistemas consumidores puedan procesar errores de forma consistente independientemente de la operación ejecutada.
+
+--- 
+
 ### Flujo de Ejecución
 
 Ejemplo: Agendar una cita
